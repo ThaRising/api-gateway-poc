@@ -4,7 +4,7 @@ from fastapi import FastAPI, Body, HTTPException, status
 from jose import jwt
 from pydantic import BaseModel as _BaseModel
 
-from ..shared import get_state_adapter, PeeweeGetterDict
+from shared import get_state_adapter, PeeweeGetterDict
 
 DATABASE_NAME = "auth.db"
 SECRET = "secret"
@@ -51,7 +51,7 @@ async def migrate():
     db.close()
 
 
-@app.post("users/", response_model=UserResponse)
+@app.post("/users", response_model=UserResponse)
 def users_create(user_data: TokenSchema = Body(...)):
     data = user_data.dict()
     pw = PasswordHasher()
@@ -59,7 +59,7 @@ def users_create(user_data: TokenSchema = Body(...)):
     return UserModel(**data).create()
 
 
-@app.post("tokens/", response_model=AccessTokenResponse)
+@app.post("/tokens", response_model=AccessTokenResponse)
 def tokens_create(user_data: TokenSchema = Body(...)):
     data = user_data.dict()
     user = UserModel.get_or_none(UserModel.username == data.get("username"))
