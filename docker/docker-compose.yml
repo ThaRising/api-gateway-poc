@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  policies:
+    image: openpolicyagent/opa
+    ports:
+      - 8181:8181
+    command:
+      - "run"
+      - "--server"
+      - "--log-level=debug"
+      - "api_authz.rego"
+    volumes:
+      - ./policy/api_authz.rego:/api_authz.rego
+    networks:
+      - internal_net
+
+  gateway:
+    image: envoyproxy/envoy
+    ports:
+      - 9076:9076
+    networks:
+      - internal_net
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge
+
+  internal_net:
+    internal: true

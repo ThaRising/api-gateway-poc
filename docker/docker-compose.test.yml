@@ -1,0 +1,47 @@
+version: "3.4"
+
+services:
+  gateway:
+    image: envoyproxy/envoy:v1.17-latest
+    ports:
+      - 10000:10000
+    networks:
+      - internal_net
+      - frontend
+    volumes:
+      - ../gateway/envoy-conf.yaml:/etc/envoy/envoy.yaml
+
+  fastapi_service:
+    build:
+      dockerfile: docker/fastapi.dockerfile
+      context: ..
+    environment:
+      MODULE_NAME: fastapi_main
+      PORT: 8080
+    networks:
+      - internal_net
+    expose:
+      - 8080
+    depends_on:
+      - gateway
+
+  auth_service:
+    build:
+      dockerfile: docker/fastapi.dockerfile
+      context: ..
+    environment:
+      MODULE_NAME: auth_main
+      PORT: 8090
+    networks:
+      - internal_net
+    expose:
+      - 8090
+    depends_on:
+      - gateway
+
+networks:
+  frontend:
+    driver: bridge
+
+  internal_net:
+    internal: true
