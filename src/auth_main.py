@@ -1,6 +1,8 @@
 import peewee
 from argon2 import PasswordHasher
-from fastapi import FastAPI, Body, HTTPException, status
+from fastapi import (
+    FastAPI, Body, HTTPException, status, Request, __version__, logger
+)
 from jose import jwt
 from pydantic import BaseModel as _BaseModel
 
@@ -12,7 +14,7 @@ SECRET = "secret"
 db = get_state_adapter(
     peewee.SqliteDatabase(DATABASE_NAME, check_same_thread=False)
 )
-app = FastAPI()
+app = FastAPI(root_path="/auth")
 
 
 class ModelBase(peewee.Model):
@@ -46,9 +48,15 @@ class AccessTokenResponse(BaseModel):
 
 @app.on_event("startup")
 async def migrate():
+    logger.logger.warning(__version__)
     db.connect()
     db.create_tables([UserModel])
     db.close()
+
+
+@app.get("/")
+def sample(req: Request):
+    return {"scope": req.scope.get("root_path")}
 
 
 @app.post("/users", response_model=UserResponse)
