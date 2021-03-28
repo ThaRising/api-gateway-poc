@@ -11,6 +11,7 @@ uvicorn = "^0.13.4"
 peewee = "^3.14.4"
 argon2-cffi = "^20.1.0"
 python-jose = {extras = ["cryptography"], version = "^3.2.0"}
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 

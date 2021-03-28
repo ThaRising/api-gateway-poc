@@ -1,5 +1,7 @@
 package authz
 
+default allow = false
+
 allow {
-    inputh.path == ["users", "tokens"]
+    ["HEAD", "OPTIONS"][_] = input.method
 }

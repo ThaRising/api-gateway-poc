@@ -7,6 +7,6 @@ in Drizm infrastructure.
 Run:  
 ```bash
 docker-compose -p gatewaytest \
-    -f docker-compose.test.yml \
-    up --build
+    -f docker-compose.yml \
+    up --build --force-recreate -V 
 ```
