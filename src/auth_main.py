@@ -52,7 +52,6 @@ class AccessTokenResponse(BaseModel):
 
 @app.on_event("startup")
 async def migrate():
-    logger.logger.warning(__version__)
     db.connect()
     db.create_tables([UserModel])
     db.close()
@@ -83,6 +82,7 @@ def tokens_create(user_data: TokenSchema = Body(...)):
     return {"access": token}
 
 
+# Catchall Route
 @app.api_route("/{full_path:path}", methods=[
     "GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"
 ])
