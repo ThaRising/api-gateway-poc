@@ -15,10 +15,26 @@ static_resources:
                 stat_prefix: ingress_http
                 route_config:
                   name: local_route
+                  internal_only_headers:
+                    - "x-current-user"
+                  response_headers_to_remove:
+                    - "x-envoy-upstream-service-time"
+                  response_headers_to_add:
+                    - header:
+                        key: "x-xss-protection"
+                        value: "1; mode=block"
+                      append: false
+                    - header:
+                        key: "x-frame-options"
+                        value: "sameorigin"
+                      append: false
+                    - header:
+                        key: "x-content-type-options"
+                        value: "nosniff"
+                      append: false
                   virtual_hosts:
                     - name: upstream
-                      domains:
-                        - "*"
+                      domains: [ "*" ]
                       typed_per_filter_config:
                         envoy.filters.http.ext_authz:
                           "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
@@ -27,24 +43,19 @@ static_resources:
                               virtual_host: upstream
                       routes:
                         - match: { prefix: "/auth/" }
-                          route:
-                            cluster: auth_service
+                          route: { cluster: auth_service }
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
                               "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
-                        - match:
-                            prefix: "/auth"
-                          route:
-                            cluster: auth_service
+                        - match: { prefix: "/auth" }
+                          route: { cluster: auth_service }
                           typed_per_filter_config:
                             envoy.filters.http.ext_authz:
                               "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
                               disabled: true
-                        - match:
-                            prefix: "/"
-                          route:
-                            cluster: fastapi_service
+                        - match: { prefix: "/" }
+                          route: { cluster: fastapi_service }
 
                 http_filters:
                   - name: envoy.filters.http.ext_authz
