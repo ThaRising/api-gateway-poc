@@ -10,6 +10,7 @@ services:
       - frontend
     volumes:
       - ../gateway/envoy-conf.yaml:/etc/envoy/envoy.yaml
+      - ../gateway:/srv/gateway/:rw
 
   policies:
     image: openpolicyagent/opa
