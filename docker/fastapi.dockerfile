@@ -18,6 +18,7 @@ RUN apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/*
 
 COPY ./src /srv/app
+COPY ./hypercorn.toml /srv/app
 
 # Download statically linked tini
 ENV TINI_VERSION v0.19.0
@@ -25,4 +26,8 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-stati
 RUN chmod +x /tini
 
 ENTRYPOINT ["/tini", "--"]
-CMD /usr/local/bin/hypercorn --bind "0.0.0.0:$PORT" -k uvloop -w 2 --ciphers "ECDHE+AESGCM" "$MODULE_NAME:app"
+CMD /usr/local/bin/hypercorn --config /srv/app/hypercorn.toml \
+    --bind "0.0.0.0:$PORT" \
+    --certfile /srv/gateway/certs/$CERTFILENAME \
+    --keyfile /srv/gateway/certs/$KEYFILENAME \
+    "$MODULE_NAME:app"

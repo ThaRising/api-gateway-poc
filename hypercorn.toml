@@ -1,0 +1,11 @@
+accesslog = "-"
+loglevel = "debug"
+debug = true
+include_server_header = false
+
+worker_class = "uvloop"
+workers = 4
+
+alpn_protocols = ["h2", "http/1.1"]
+ciphers = "ECDHE+AESGCM"
+h11_max_incomplete_size = 4
