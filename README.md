@@ -28,37 +28,39 @@ little of its drawbacks.
 
 The following technologies are
 being used:  
-- Envoy (Reverse Proxy / Edge Router)
+- Traefik (Reverse-Proxy / Edge-Router)
+- Jaeger (Tracing)
 - Elasticsearch, FluentD, Kibana (Logging)
 - Prometheus, Cortex (Monitoring)
 - JOSE, PASETO (Authn)
 - Open Policy Agent (Authz)
 
+## Preparations
+
+```bash
+cd ./gateway/certs
+
+# If this is your first time using MkCert
+mkcert -install
+
+mkcert fastapi_service
+mkcert auth_service
+cp "$(mkcert -CAROOT)/rootCA.pem" ../root.pem
+
+mkcert localhost 127.0.0.1 ::1
+mv ./localhost+2.pem ./chain.pem
+mv ./localhost+2-key.pem ./key.pem
+```
+
 ## Running
 
-Before you can run this, a
-certificate-chain file, and a private
-key file for TLS will be expected to
-be located at:  
-- /gateway/chain.pem
-- /gateway/key.pem
-
-If you have mkcert installed,
-you can generate them like so:  
-```bash
-cd gateway
-mkcert localhost 127.0.0.1 ::1
-```
-Now simply rename the files to the
-names above.
-
-Run:  
 ```bash
 sudo chmod -R 777 ./gateway
 cd docker
 docker-compose -p gatewaytest \
     -f docker-compose.yml \
-    up --build --force-recreate -V
+    up --build --force-recreate -V --remove-orphans
 ```
+
 You can now view the application
 at ``https://localhost:10000``.
