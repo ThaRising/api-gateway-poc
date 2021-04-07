@@ -4,12 +4,13 @@
     [http.routers.auth_service_router]
       service = "auth_service"
       rule = "Host(`localhost`) && PathPrefix(`/auth`)"
+      middlewares = ["secHeaders"]
       [http.routers.auth_service_router.tls]
 
     [http.routers.fastapi_service_router]
       service = "fastapi_service"
       rule = "Host(`localhost`) && PathPrefix(`/`)"
-      middlewares = ["extauth"]
+      middlewares = ["extauth", "secHeaders"]
       [http.routers.fastapi_service_router.tls]
 
   [http.services]
@@ -31,6 +32,13 @@
         cert = "/srv/gateway/chain.pem"
         key = "/srv/gateway/key.pem"
         insecureSkipVerify = true
+
+    [http.middlewares.secHeaders.headers]
+      contentTypeNosniff = true
+      frameDeny = true
+      browserXssFilter = true
+      [http.middlewares.secHeaders.headers.customResponseHeaders]
+        server = "drizm-h2"
 
 [tls]
   [[tls.certificates]]
