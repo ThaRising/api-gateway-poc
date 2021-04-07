@@ -1,0 +1,38 @@
+## Dynamic Configuration ##
+[http]
+  [http.routers]
+    [http.routers.auth_service_router]
+      service = "auth_service"
+      rule = "Host(`localhost`) && PathPrefix(`/auth`)"
+      [http.routers.auth_service_router.tls]
+
+    [http.routers.fastapi_service_router]
+      service = "fastapi_service"
+      rule = "Host(`localhost`) && PathPrefix(`/`)"
+      middlewares = ["extauth"]
+      [http.routers.fastapi_service_router.tls]
+
+  [http.services]
+    [http.services.fastapi_service]
+      [http.services.fastapi_service.loadBalancer]
+        [[http.services.fastapi_service.loadBalancer.servers]]
+          url = "https://fastapi_service:8080"
+
+    [http.services.auth_service]
+      [http.services.auth_service.loadBalancer]
+        [[http.services.auth_service.loadBalancer.servers]]
+          url = "https://auth_service:8090"
+
+  [http.middlewares]
+    [http.middlewares.extauth.forwardAuth]
+      address = "https://auth_service:8090"
+      authResponseHeaders = ["x-current-user"]
+      [http.middlewares.extauth.forwardAuth.tls]
+        cert = "/srv/gateway/chain.pem"
+        key = "/srv/gateway/key.pem"
+        insecureSkipVerify = true
+
+[tls]
+  [[tls.certificates]]
+    certFile = "/srv/gateway/chain.pem"
+    keyFile = "/srv/gateway/key.pem"

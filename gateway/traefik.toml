@@ -1,0 +1,22 @@
+## Static Configuration ##
+
+[accessLog]
+[log]
+  level = "DEBUG"
+
+[entryPoints]
+  [entryPoints.websecure]
+    address = ":10000"
+
+
+# This will configure TLS between Traefik and all servers
+[serversTransport]
+  rootCAs = ["/srv/gateway/root.pem"]
+
+[api]
+  dashboard = true
+  insecure = true
+
+[providers]
+  [providers.file]
+    filename = "/srv/gateway/traefik_dynamic.toml"

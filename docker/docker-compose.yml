@@ -2,15 +2,17 @@ version: "3.4"
 
 services:
   gateway:
-    image: envoyproxy/envoy:v1.17-latest
+    image: traefik:v2.4
     ports:
       - 10000:10000
+      - 8080:8080
     networks:
       - internal_net
       - frontend
     volumes:
-      - ../gateway/envoy-conf.yaml:/etc/envoy/envoy.yaml
+      - ../gateway/traefik.toml:/etc/traefik/traefik.toml
       - ../gateway:/srv/gateway/:rw
+      - /var/run/docker.sock:/var/run/docker.sock
 
   policies:
     image: openpolicyagent/opa
@@ -36,12 +38,16 @@ services:
     environment:
       MODULE_NAME: fastapi_main
       PORT: 8080
+      CERTFILENAME: fastapi_service.pem
+      KEYFILENAME: fastapi_service-key.pem
     networks:
       - internal_net
     expose:
       - 8080
     depends_on:
       - gateway
+    volumes:
+      - ../gateway:/srv/gateway
 
   auth_service:
     build:
@@ -50,12 +56,16 @@ services:
     environment:
       MODULE_NAME: auth_main
       PORT: 8090
+      CERTFILENAME: auth_service.pem
+      KEYFILENAME: auth_service-key.pem
     networks:
       - internal_net
     expose:
       - 8090
     depends_on:
       - gateway
+    volumes:
+      - ../gateway:/srv/gateway
 
 networks:
   frontend:
