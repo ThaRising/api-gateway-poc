@@ -89,13 +89,13 @@ def tokens_create(user_data: TokenSchema = Body(...)):
 def sample(
         req: Request,
         full_path: str,
-        token: str = fastapi.Depends(HTTPBearer(
+        token=fastapi.Depends(HTTPBearer(
             auto_error=False, scheme_name="Bearer"
         ))
 ):
     user = {}
     if token:
-        user = jwt.decode(token, key=SECRET, algorithms="HS256")
+        user = jwt.decode(token.credentials, key=SECRET, algorithms="HS256")
     opa_input = {
         "input": {
             "method": req.method,
