@@ -3,7 +3,7 @@ import peewee
 import requests
 from argon2 import PasswordHasher, exceptions as argon_exc
 from fastapi import (
-    FastAPI, Body, HTTPException, status, Request, __version__, logger
+    FastAPI, Body, HTTPException, status, Request
 )
 from fastapi.responses import Response
 from fastapi.security import HTTPBearer
